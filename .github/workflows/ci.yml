@@ -12,29 +12,17 @@ permissions:
 
 jobs:
   sca:
-    name: "SCA: OWASP Dependency-Check"
+    name: "SCA: npm audit"
     runs-on: ubuntu-latest
     steps:
-      - name: Download dependency-check
-        run: |
-          # fetch key
-          gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 259A55407DD6C00299E6607EFFDE55BE73A2D1ED
-          # fetch release and signature
-          wget 'https://github.com/dependency-check/DependencyCheck/releases/download/v12.2.2/dependency-check-12.2.2-release.zip' 'https://github.com/dependency-check/DependencyCheck/releases/download/v12.2.2/dependency-check-12.2.2-release.zip.asc'
-          # verify signature
-          gpg --verify dependency-check-12.2.2-release.zip.asc
-          # unzip
-          unzip dependency-check-12.2.2-release.zip
-      - name: Cache dependency-check data
-        uses: actions/cache@v6
+      - name: Get nodejs
+        uses: actions/setup-node@v6
         with:
-          path: ./dependency-check/data
-          key: ${{ runner.os }}-depcheck-data
+          node-version: 24
       - name: Clone repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
           path: repo
-      - name: Run dependency-check
-        working-directory: ./dependency-check/bin
-        run: ./dependency-check.sh --project "JuiceShop" --scan "../../repo"
+      - name: npm audit
+        run: npm audit
