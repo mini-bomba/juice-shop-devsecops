@@ -30,3 +30,6 @@ jobs:
         with:
           fetch-depth: 0
           path: repo
+      - name: Run dependency-check
+        working-directory: ./dependency-check/bin
+        run: ./dependency-check.sh --project "JuiceShop" --scan "../../repo"
