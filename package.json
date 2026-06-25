@@ -204,7 +204,7 @@
     "globals": "^17.4.0",
     "grunt-cli": "^1.5.0",
     "neostandard": "^0.13.0",
-    "nyc": "^15.1.0",
+    "nyc": "^18.0.0",
     "socket.io-client": "^3.1.3",
     "supertest": "^7.2.2",
     "tsx": "^4.21.0",
@@ -227,5 +227,10 @@
     "arm64",
     "arm"
   ],
-  "heroku-run-build-script": true
+  "heroku-run-build-script": true,
+  "overrides": {
+    "sequelize": {
+      "uuid": "^11.1.1"
+    }
+  }
 }
