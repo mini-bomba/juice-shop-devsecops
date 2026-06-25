@@ -25,6 +25,11 @@ jobs:
           gpg --verify dependency-check-12.2.2-release.zip.asc
           # unzip
           unzip dependency-check-12.2.2-release.zip
+      - name: Cache dependency-check data
+        uses: actions/cache@v6
+        with:
+          path: ./dependency-check/data
+          key: ${{ runner.os }}-depcheck-data
       - name: Clone repository
         uses: actions/checkout@v6
         with:
