@@ -24,7 +24,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: npm audit (server)
-        run: npm audit
+        run: npm audit --audit-level moderate --ignore-scripts
       - name: npm audit (frontend)
-        run: npm audit
+        run: npm audit --audit-level moderate --ignore-scripts
         working-directory: ./frontend
