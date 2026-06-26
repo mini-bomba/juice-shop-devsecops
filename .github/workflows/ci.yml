@@ -201,6 +201,9 @@ jobs:
             artifact-ids: ${{ needs.build.outputs.artifact }}
             skip-decompress: true
         - name: Authenticate with ghcr.io
-          run: echo $GITHUB_TOKEN | docker login ghcr.io -u mini-bomba --password-stdin
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            USER: ${{ github.actor }}
+          run: echo $GITHUB_TOKEN | docker login ghcr.io -u "$USER" --password-stdin
 
 
