@@ -114,5 +114,5 @@ jobs:
           env:
             KEY: ${{ secrets.GIT_CRYPT_KEY }}
         - name: Import docker image
-          run: zstd -cd docker-image.tar.zst | docker load
+          run: docker image load -i docker-image.tar.zst
 
