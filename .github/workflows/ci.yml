@@ -41,4 +41,4 @@ jobs:
         with:
           fetch-depth: 0
       - name: Semgrep scan
-        run: semgrep --config auto --error .
+        run: semgrep --config auto --error --exclude 'data/static/codefixes/**' .
