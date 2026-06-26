@@ -134,11 +134,23 @@ jobs:
           docker inspect juice-shop -f '{{ .State.Status }}' | grep '^running$'
       - name: Run nikto
         run: |
+          mkdir output
           docker run \
             --rm \
             -h nikto \
             --name nikto \
             --network test-net \
+            -v $PWD/output:/output \
             ghcr.io/sullo/nikto:latest \
-            -h http://juice-shop:3000
+            -h http://juice-shop:3000 \
+            -o /output/nikto.json
+      - name: Upload scan results
+        uses: actions/upload-artifact@v7
+        id: upload
+        with:
+          name: nikto-results
+          path: output/nikto.json
+          if-no-files-found: error
+          archive: false
+
 
