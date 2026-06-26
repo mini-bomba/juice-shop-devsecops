@@ -155,4 +155,25 @@ jobs:
           if-no-files-found: error
           archive: false
 
+  trivy:
+    name: Scan docker image with trivy
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - parallel:
+        - name: Download trivy
+          run: |
+            curl -Lo trivy.tar.gz https://github.com/aquasecurity/trivy/releases/download/v0.71.2/trivy_0.71.2_Linux-64bit.tar.gz
+            echo "0510e71e2fd39bf863856d499c8dc19feb4e7336546394c502a8f5cc7ab27460 trivy.tar.gz" | sha256sum -c -
+            tar -xf trivy.tar.gz
+        - name: Download the docker image
+          uses: actions/download-artifact@v8
+          with:
+            artifact-ids: ${{ needs.build.outputs.artifact }}
+            skip-decompress: true
+      - name: Import docker image
+        run: docker image load -i docker-image.tar.zst
+      - name: Scan image with trivy
+        run: ./trivy image --severity HIGH,CRITICAL juice-shop:latest
+
 
