@@ -29,3 +29,16 @@ jobs:
         - name: npm audit (frontend)
           run: npm audit --ignore-scripts
           working-directory: ./frontend
+
+  sast:
+    name: "SAST: semgrep"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install semgrep
+        run: pip install semgrep
+      - name: Clone repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Semgrep scan
+        run: semgrep --config auto .
