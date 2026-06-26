@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install gitleaks
-        run: apt update && apt install -y gitleaks
+        run: sudo apt update && sudo apt install -y gitleaks
       - name: Clone repository
         uses: actions/checkout@v6
         with:
