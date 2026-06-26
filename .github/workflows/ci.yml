@@ -58,3 +58,25 @@ jobs:
           fetch-depth: 0
       - name: gitleaks scan
         run: /tmp/gitleaks dir -v --config .github/gitleaks.toml .
+
+  build:
+    name: "Build the container"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Remove encrypted files
+        run: rm data/static/users.yml encryptionkeys/jwt.priv
+      - name: Build container
+        run: docker build -t juice-shop .
+      - name: Export image
+        run: docker image save juice-shop | zstd > docker-image.tar.zst
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: docker-image
+          path: docker-image.tar.zst
+          if-no-files-found: error
+          archive: false
