@@ -107,6 +107,10 @@ jobs:
           with:
             fetch-depth: 0
             path: source
+        - name: Pre-fetch nikto docker container
+          run: docker pull ghcr.io/sullo/nikto:latest
+        - name: Create test network
+          run: docker network create test-net
       - parallel:
         - name: Decrypt repository with git-crypt
           run: echo "$KEY" | base64 -d | git-crypt unlock /dev/stdin
@@ -115,4 +119,27 @@ jobs:
             KEY: ${{ secrets.GIT_CRYPT_KEY }}
         - name: Import docker image
           run: docker image load -i docker-image.tar.zst
+      - name: Start the juice-shop docker container
+        run: |
+          docker run \
+            -dh juice-shop \
+            --name juice-shop \
+            --rm \
+            --network test-net \
+            -v $PWD/source/data/static/users.yml:/juice-shop/data/static/users.yml:ro \
+            -v $PWD/source/encryptionkeys/jwt.priv:/juice-shop/encryptionkeys/jwt.priv:ro \
+            juice-shop
+      - name: Wait a while for it to initalize
+        run: |
+          sleep 30
+          docker inspect juice-shop -f '{{ .State.Status }}' | grep '^running$'
+      - name: Run nikto
+        run: |
+          docker run \
+            --rm \
+            -h nikto \
+            --name nikto \
+            --network test-net \
+            nikto:latest \
+            -h http://juice-shop:3000
 
