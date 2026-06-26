@@ -11,8 +11,35 @@ import { BasketModel } from '../models/basket'
 import * as security from '../lib/insecurity'
 import { UserModel } from '../models/user'
 import * as models from '../models/index'
-import { type User } from '../data/types'
+import { type Challenge, type User } from '../data/types'
 import * as utils from '../lib/utils'
+import { loadStaticUserData } from '../data/staticData'
+
+/* eslint-disable @stylistic/quote-props */
+const LOGIN_CHALLENGES: Record<string, keyof typeof challenges> = {
+  'admin': 'weakPasswordChallenge',
+  'support': 'loginSupportChallenge',
+  'mc.safesearch': 'loginRapperChallenge',
+  'amy': 'loginAmyChallenge',
+  'J12934': 'dlpPasswordSprayingChallenge',
+  'bjoern.kimminich@gmail.com': 'oauthUserPasswordChallenge',
+  'testing': 'exposedCredentialsChallenge',
+}
+/* eslint-enable @stylistic/quote-props */
+let CHALLENGE_USER_PASSWORDS: Map<keyof typeof LOGIN_CHALLENGES, string> | null = null
+
+async function loadUserPasswords (emails: string[]): Promise<Map<string, string>> {
+  const users = await loadStaticUserData()
+  const result = new Map<string, string>()
+
+  for (const user of users) {
+    if (emails.includes(user.email)) {
+      result.set(user.email, user.password)
+    }
+  }
+
+  return result
+}
 
 // vuln-code-snippet start loginAdminChallenge loginBenderChallenge loginJimChallenge
 export function login () {
@@ -55,14 +82,26 @@ export function login () {
   }
   // vuln-code-snippet end loginAdminChallenge loginBenderChallenge loginJimChallenge
 
-  function verifyPreLoginChallenges (req: Request) {
-    challengeUtils.solveIf(challenges.weakPasswordChallenge, () => { return req.body.email === 'admin@' + config.get<string>('application.domain') && req.body.password === 'admin123' })
-    challengeUtils.solveIf(challenges.loginSupportChallenge, () => { return req.body.email === 'support@' + config.get<string>('application.domain') && req.body.password === 'J6aVjTgOpRs@?5l!Zkq2AYnCE@RF$P' })
-    challengeUtils.solveIf(challenges.loginRapperChallenge, () => { return req.body.email === 'mc.safesearch@' + config.get<string>('application.domain') && req.body.password === 'Mr. N00dles' })
-    challengeUtils.solveIf(challenges.loginAmyChallenge, () => { return req.body.email === 'amy@' + config.get<string>('application.domain') && req.body.password === 'K1f.....................' })
-    challengeUtils.solveIf(challenges.dlpPasswordSprayingChallenge, () => { return req.body.email === 'J12934@' + config.get<string>('application.domain') && req.body.password === '0Y8rMnww$*9VFYE§59-!Fg1L6t&6lB' })
-    challengeUtils.solveIf(challenges.oauthUserPasswordChallenge, () => { return req.body.email === 'bjoern.kimminich@gmail.com' && req.body.password === 'bW9jLmxpYW1nQGhjaW5pbW1pay5ucmVvamI=' })
-    challengeUtils.solveIf(challenges.exposedCredentialsChallenge, () => { return req.body.email === 'testing@' + config.get<string>('application.domain') && req.body.password === 'IamUsedForTesting' })
+  async function verifyPreLoginChallenges (req: Request) {
+    CHALLENGE_USER_PASSWORDS ??= await loadUserPasswords(Object.keys(LOGIN_CHALLENGES))
+
+    const atDomain = `@${config.get<string>('application.domain')}`
+    let email = req.body.email as string
+    // remove local domain
+    if (email.endsWith(atDomain)) {
+      email = email.substring(0, email.length - atDomain.length)
+      // if there's still a @ in the string, quit
+      if (email.includes('@')) {
+        return
+      }
+    }
+
+    // try to get a password for the challenge user
+    const expPassword = CHALLENGE_USER_PASSWORDS.get(email)
+    if (expPassword === undefined) {
+      return
+    }
+    challengeUtils.solveIf(challenges[LOGIN_CHALLENGES[email]], () => req.body.password === expPassword)
   }
 
   function verifyPostLoginChallenges (user: User) {
