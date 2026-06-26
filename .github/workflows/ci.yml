@@ -135,6 +135,7 @@ jobs:
       - name: Run nikto
         run: |
           mkdir output
+          chmod 1777 output
           docker run \
             --rm \
             -h nikto \
