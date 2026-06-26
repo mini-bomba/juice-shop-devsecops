@@ -212,6 +212,7 @@ jobs:
           docker image load -i docker-image.tar.zst
           docker image tag juice-shop:latest ghcr.io/mini-bomba/juice-shop:latest
           docker image tag juice-shop:latest ghcr.io/mini-bomba/juice-shop:$SHA
-          docker image push -a ghcr.io/mini-bomba/juice-shop:latest
+          docker image push ghcr.io/mini-bomba/juice-shop:latest
+          docker image push ghcr.io/mini-bomba/juice-shop:$SHA
 
 
