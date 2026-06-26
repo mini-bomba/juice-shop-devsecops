@@ -171,10 +171,8 @@ jobs:
           with:
             artifact-ids: ${{ needs.build.outputs.artifact }}
             skip-decompress: true
-      - name: Import docker image
-        run: docker image load -i docker-image.tar.zst
       - name: Scan image with trivy
-        run: ./trivy image --severity HIGH,CRITICAL juice-shop:latest --format json -o trivy.json
+        run: ./trivy image --severity HIGH,CRITICAL juice-shop:latest --format json -o trivy.json --input docker-image.tar.zst
       - name: Upload scan results
         uses: actions/upload-artifact@v7
         if: always()
