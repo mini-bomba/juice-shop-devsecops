@@ -148,7 +148,7 @@ jobs:
             -Tuning x567
       - name: Upload scan results
         uses: actions/upload-artifact@v7
-        id: upload
+        if: always()
         with:
           name: nikto-results
           path: output/nikto.json
@@ -177,7 +177,7 @@ jobs:
         run: ./trivy image --severity HIGH,CRITICAL juice-shop:latest --format json -o trivy.json
       - name: Upload scan results
         uses: actions/upload-artifact@v7
-        id: upload
+        if: always()
         with:
           name: trivy-results
           path: trivy.json
