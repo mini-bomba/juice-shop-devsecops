@@ -23,8 +23,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: npm audit (server)
-        run: npm audit --audit-level none --ignore-scripts
-      - name: npm audit (frontend)
-        run: npm audit --audit-level none --ignore-scripts
-        working-directory: ./frontend
+      - parallel:
+        - name: npm audit (server)
+          run: npm audit --ignore-scripts
+        - name: npm audit (frontend)
+          run: npm audit --ignore-scripts
+          working-directory: ./frontend
