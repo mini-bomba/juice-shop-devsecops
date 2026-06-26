@@ -57,4 +57,4 @@ jobs:
         with:
           fetch-depth: 0
       - name: gitleaks scan
-        run: /tmp/gitleaks dir -v .
+        run: /tmp/gitleaks dir -v --config .github/gitleaks.toml .
