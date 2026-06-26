@@ -7,7 +7,6 @@ on:
 
 permissions:
   actions: read
-  artifact-metadata: write
   contents: read
 
 jobs:
@@ -140,6 +139,6 @@ jobs:
             -h nikto \
             --name nikto \
             --network test-net \
-            nikto:latest \
+            ghcr.io/sullo/nikto:latest \
             -h http://juice-shop:3000
 
