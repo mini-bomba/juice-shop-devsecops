@@ -42,3 +42,16 @@ jobs:
           fetch-depth: 0
       - name: Semgrep scan
         run: semgrep --config auto --error --exclude 'data/static/codefixes/**' .
+
+  secret-scanning:
+    name: "Secret scanning: gitleaks"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install gitleaks
+        run: apt update && apt install -y gitleaks
+      - name: Clone repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Semgrep scan
+        run: gitleaks dir -v .
