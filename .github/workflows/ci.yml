@@ -69,7 +69,7 @@ jobs:
       - name: Remove encrypted and test files
         run: |
           rm data/static/users.yml encryptionkeys/jwt.priv
-          bash -c 'rm **/*.spec.ts'
+          find . -name '*.spec.ts' -delete
       - name: Build container
         run: docker build -t juice-shop .
       - name: Export image
