@@ -80,3 +80,23 @@ jobs:
           path: docker-image.tar.zst
           if-no-files-found: error
           archive: false
+
+  dast:
+    name: "DAST: nikto"
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Install git-crypt
+        run: |
+          curl -Lo /tmp/git-crypt https://github.com/AGWA/git-crypt/releases/download/0.8.0/git-crypt-0.8.0-linux-x86_64
+          echo "522683f89693ad2da1f3fa7e1076f5e8934619a55ff2e1246866eeb2ad587b0c /tmp/git-crypt" | sha256sum -c -
+          chmod +x /tmp/git-crypt
+          sudo mv /tmp/git-crypt /usr/local/bin/git-crypt
+      - name: Clone repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Decrypt repository with git-crypt
+        run: echo "$KEY" | base64 -d | git-crypt unlock /dev/stdin
+        env:
+          KEY: ${{ secrets.GIT_CRYPT_KEY }}
