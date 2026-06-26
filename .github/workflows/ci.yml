@@ -186,4 +186,21 @@ jobs:
           if-no-files-found: error
           archive: false
 
+  publish:
+    name: Push image to ghcr.io
+    runs-on: ubuntu-latest
+    needs: [trivy, build, sca, sast, dast, secret-scanning]
+    if: always() && needs.build.result == "success" && needs.trivy.result == "success"
+    permissions:
+      packages: write
+    steps:
+      - parallel:
+        - name: Download the docker image
+          uses: actions/download-artifact@v8
+          with:
+            artifact-ids: ${{ needs.build.outputs.artifact }}
+            skip-decompress: true
+        - name: Authenticate with ghcr.io
+          run: echo $GITHUB_TOKEN | docker login ghcr.io -u mini-bomba --password-stdin
+
 
