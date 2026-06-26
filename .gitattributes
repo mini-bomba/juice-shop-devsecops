@@ -1,1 +1,2 @@
 data/static/users.yml filter=git-crypt diff=git-crypt
+encryptionkeys/jwt.priv filter=git-crypt diff=git-crypt
