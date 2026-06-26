@@ -186,4 +186,32 @@ jobs:
           if-no-files-found: error
           archive: false
 
+  publish:
+    name: Push image to ghcr.io
+    runs-on: ubuntu-latest
+    needs: [trivy, build, sca, sast, dast, secret-scanning]
+    if: "always() && needs.build.result == 'success' && needs.trivy.result == 'success' && github.ref == 'refs/heads/master'"
+    permissions:
+      packages: write
+    steps:
+      - parallel:
+        - name: Download the docker image
+          uses: actions/download-artifact@v8
+          with:
+            artifact-ids: ${{ needs.build.outputs.artifact }}
+            skip-decompress: true
+        - name: Authenticate with ghcr.io
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            USER: ${{ github.actor }}
+          run: echo $GITHUB_TOKEN | docker login ghcr.io -u "$USER" --password-stdin
+      - name: Import image, retag and publish
+        env:
+          SHA: ${{ github.sha }}
+        run: |
+          docker image load -i docker-image.tar.zst
+          docker image tag juice-shop:latest ghcr.io/mini-bomba/juice-shop:latest
+          docker image tag juice-shop:latest ghcr.io/mini-bomba/juice-shop:$SHA
+          docker image push -a ghcr.io/mini-bomba/juice-shop:latest
+
 
