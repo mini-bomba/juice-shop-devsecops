@@ -1,0 +1,31 @@
+name: The Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+
+permissions:
+  actions: read
+  artifact-metadata: write
+  contents: read
+
+jobs:
+  sca:
+    name: "SCA: npm audit"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get nodejs
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Clone repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - parallel:
+        - name: npm audit (server)
+          run: npm audit --ignore-scripts
+        - name: npm audit (frontend)
+          run: npm audit --ignore-scripts
+          working-directory: ./frontend
